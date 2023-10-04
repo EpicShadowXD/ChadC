@@ -1,45 +1,107 @@
 #pragma once
 
-#include "utility.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <regex>
+#include <array>
+#include <utility>
+#include <string>
+#include <map>
+#include <variant>
 
-std::string scanner(const std::string& fileName) {
-    std::ifstream file(fileName);
+enum class TokenType {
+    Keyword,
+    Operator,
+    Separator,
+    Identifier,
+    Number,
+    Unknown,
+    Invalid
+};
 
-    if (!file.is_open()) {
-        std::cerr << "Failed to open the file";
-        return {};
-    }
+struct Token {
+    TokenType type;
+    std::string value;
+};
 
+namespace operators {
+    enum class Arithmetic {
+        ADD,
+        SUB,
+        MULTIPLY,
+        DIVIDE
+    };
+
+    const std::map<Arithmetic, std::string> arithmetics = {
+            {Arithmetic::ADD, "+"},
+            {Arithmetic::SUB, "-"},
+            {Arithmetic::MULTIPLY, "*"},
+            {Arithmetic::DIVIDE, "/"},
+    };
+
+    enum class Assignment {
+        ASSIGN,
+        ADD,
+        SUB,
+        MULTIPLY,
+        DIVIDE
+    };
+
+    const std::map<Assignment, std::string> assignments = {
+        {Assignment::ASSIGN, "="},
+        {Assignment::ADD, "+="},
+        {Assignment::SUB, "-="},
+        {Assignment::MULTIPLY, "*="},
+        {Assignment::DIVIDE, "/="},
+    };
+};
+
+// TODO: shorten buildOperatorPattern and make the token type operator more specific
+template <typename MapType>
+std::string buildSingleOperator(MapType ops) {
     std::string output;
-    std::string line;
 
-    while (std::getline(file, line))
-        output += line + '\n';
+    for (const auto& op : ops) {
+        if (!output.empty())
+            output += "|";
+        output += "\\" + std::get<1>(op);
+    }
 
     return output;
 }
 
-std::vector<std::string> tokenizer(std::string input) {
-    std::string token_pattern("(");
-    for (const auto& pattern : patterns)
-        token_pattern += pattern.first + "|";
-    token_pattern[token_pattern.size() - 1] = ')';
+std::string buildOperatorPattern() {
+    std::string operatorPattern = "(";
 
-    std::regex token_regex(token_pattern);
-    std::sregex_iterator iter(input.begin(), input.end(), token_regex);
-    std::sregex_iterator end;
-
-    std::vector<std::string> tokens;
-
-    while (iter != end) {
-        // Use the appropriate capturing group to determine the token type
-        for (int i = 1; i <= 4; ++i) {
-            if ((*iter)[i].length() > 0) {
-                tokens.push_back((*iter)[i]);
-                break;
-            }
+    // Iterate over assignment operators
+    for (const auto& assignment : operators::assignments) {
+        if (!operatorPattern.empty()) {
+            operatorPattern += "|";
         }
-        ++iter;
+        operatorPattern += "\\" + std::get<1>(assignment);
     }
-    return tokens;
+
+    // Iterate over arithmetic operators
+    for (const auto& arithmetic : operators::arithmetics) {
+        if (!operatorPattern.empty()) {
+            operatorPattern += "|";
+        }
+        operatorPattern += "\\" + std::get<1>(arithmetic);
+    }
+
+    // Add other operators
+    operatorPattern += "|=|\\{|\\}|\\(|\\)|;|\\+\\+|--";
+    operatorPattern += ")";
+
+    return operatorPattern;
 }
+
+// type as TokenType, regex pattern as std::string, type as std::string
+const std::map<TokenType, std::tuple<std::string, std::string>> patterns({
+        {TokenType::Keyword, std::make_pair("int|float|char|while|if|return", "Keyword")},
+        {TokenType::Identifier, std::make_pair("[a-zA-Z_][a-zA-Z0-9_]*", "Identifier")},
+        {TokenType::Operator, std::make_pair(buildOperatorPattern(), "Operator")}, // "=|\\{|\\}|\\(|\\)|;|\\+\\+|--"
+        {TokenType::Number, std::make_pair("\\d+", "Number")}
+});

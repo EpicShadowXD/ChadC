@@ -4,8 +4,8 @@ project(chad_compiler)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(chad_compiler main.cpp
-        tokenizer.h
+        tokenizer.hpp
         tokenizer_backup.h
-        parser.h
-        utility.h
+        tokenizer.h
+        grammar.h
 )

@@ -1,8 +1,4 @@
 int main() {
-    int i = 5;
-    int a = 0;
-    while (i != 0) {
-        a = a + i;
-        --i;
-    } return a;
+    int a = 2 + 3 * 5;
+    return a;
 }
