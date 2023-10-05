@@ -84,13 +84,13 @@ namespace separators {
 
 // TODO: shorten buildOperatorPattern and make the token type operator more specific
 template <typename MapType>
-std::string buildSingleOperator(MapType ops) {
+std::string buildSingleOperator(std::map<MapType, std::string> things) {
     std::string output;
 
-    for (const auto& op : ops) {
+    for (const auto& thing : things) {
         if (!output.empty())
             output += "|";
-        output += "\\" + std::get<1>(op);
+        output += "\\" + std::get<1>(thing);
     }
 
     return output;
@@ -99,29 +99,9 @@ std::string buildSingleOperator(MapType ops) {
 std::string buildOperatorPattern() {
     std::string operatorPattern = "(";
 
-    // Iterate over assignment operators
-    for (const auto& assignment : operators::assignments) {
-        if (!operatorPattern.empty()) {
-            operatorPattern += "|";
-        }
-        operatorPattern += "\\" + std::get<1>(assignment);
-    }
-
-    // Iterate over arithmetic operators
-    for (const auto& arithmetic : operators::arithmetics) {
-        if (!operatorPattern.empty()) {
-            operatorPattern += "|";
-        }
-        operatorPattern += "\\" + std::get<1>(arithmetic);
-    }
-
-    // Iterate over arithmetic operators
-    for (const auto& separator : separators::separators) {
-        if (!operatorPattern.empty()) {
-            operatorPattern += "|";
-        }
-        operatorPattern += "\\" + std::get<1>(separator);
-    }
+    operatorPattern += buildSingleOperator(operators::assignments);
+    operatorPattern += buildSingleOperator(operators::arithmetics);
+    operatorPattern += buildSingleOperator(separators::separators);
 
     operatorPattern += ")";
 
