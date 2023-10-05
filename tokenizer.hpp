@@ -34,6 +34,7 @@ TokenType getTokenType(const std::string& word) {
 [[nodiscard]]
 std::vector<Token> tokenizer(const std::string& input) {
     std::string token_pattern("(");
+
     for (const auto& [type, pattern] : patterns)
         token_pattern += std::get<0>(pattern) + "|";
     token_pattern[token_pattern.size() - 1] = ')';

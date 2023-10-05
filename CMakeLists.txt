@@ -7,5 +7,7 @@ add_executable(chad_compiler main.cpp
         tokenizer.hpp
         tokenizer_backup.h
         tokenizer.h
-        grammar.h
+        TokenTypeHierarchy.h
+        TokenPatterns.h
+        TokenPatterns.hpp
 )
