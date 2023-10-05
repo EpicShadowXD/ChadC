@@ -11,24 +11,64 @@
 #include <map>
 #include <variant>
 
-enum class TokenType {
-    Keyword,
-    Operator, /*
-    LParanthesis,
-    RParanthesis,
-    LBracket,
-    RBracket, */
-    Separator,
-    Identifier,
-    Number,
-    Unknown,
-    Invalid
-};
+enum class TokenType;
+struct Token;
 
-struct Token {
-    TokenType type;
-    std::string value;
-};
+// TODO: this.
+namespace TokenTypeHierarchy {
+    enum class Keyword {
+        INT,
+        FLOAT,
+        CHAR,
+        WHILE,
+        IF,
+        RETURN
+    };
+
+    enum class Arithmetic {
+        ADD,
+        SUB,
+        MULTIPLY,
+        DIVIDE
+    };
+
+    enum class Assignment {
+        ASSIGN,
+        ADD,
+        SUB,
+        MULTIPLY,
+        DIVIDE
+    };
+
+    enum class Separator {
+        LParanthesis,
+        RParanthesis,
+        LBracket,
+        RBracket,
+        Comma,
+        Semicolon
+    };
+}
+
+namespace keywords {
+    enum class Keywords {
+        INT,
+        FLOAT,
+        CHAR,
+        WHILE,
+        IF,
+        RETURN
+    };
+
+    const std::map<Keywords, std::string> keywords = {
+            {Keywords::INT, "int"},
+            {Keywords::FLOAT, "float"},
+            {Keywords::CHAR, "char"},
+            {Keywords::WHILE, "while"},
+            {Keywords::IF, "if"},
+            {Keywords::RETURN, "return"},
+    };
+}
 
 namespace operators {
     enum class Arithmetic {
@@ -105,11 +145,27 @@ std::string buildPattern(const std::vector<std::map<MapType, std::string>>& maps
     return (pattern += ")");
 }
 
+// TODO: need some inheritance here
+enum class TokenType {
+    Keyword,
+    Operator,
+    Separator,
+    Identifier,
+    Number,
+    Unknown,
+    Invalid
+};
+
+struct Token {
+    TokenType type;
+    std::string value;
+};
+
 // type as TokenType, regex pattern as std::string, type as std::string
 const std::map<TokenType, std::tuple<std::string, std::string>> patterns({
-        {TokenType::Keyword, std::make_pair("int|float|char|while|if|return", "Keyword")},
+        {TokenType::Keyword, std::make_pair(buildSingleOperator(keywords::keywords), "Keyword")},
         {TokenType::Identifier, std::make_pair("[a-zA-Z_][a-zA-Z0-9_]*", "Identifier")},
-        {TokenType::Operator, std::make_pair("(" + buildSingleOperator(operators::arithmetics) + buildSingleOperator(operators::assignments) + ")", "Operator")}, // "=|\\{|\\}|\\(|\\)|;|\\+\\+|--"
-        {TokenType::Separator, std::make_pair("(" + buildSingleOperator(separators::separators) + ")", "Separator")},
+        {TokenType::Operator, std::make_pair(buildSingleOperator(operators::arithmetics) + buildSingleOperator(operators::assignments), "Operator")}, // "=|\\{|\\}|\\(|\\)|;|\\+\\+|--"
+        {TokenType::Separator, std::make_pair(buildSingleOperator(separators::separators), "Separator")},
         {TokenType::Number, std::make_pair("\\d+", "Number")}
 });
