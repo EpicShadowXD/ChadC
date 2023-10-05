@@ -82,9 +82,8 @@ namespace separators {
     };
 }
 
-// TODO: shorten buildOperatorPattern and make the token type operator more specific
 template <typename MapType>
-std::string buildSingleOperator(std::map<MapType, std::string> things) {
+std::string buildSingleOperator(const std::map<MapType, std::string>& things) {
     std::string output;
 
     for (const auto& thing : things) {
@@ -96,22 +95,21 @@ std::string buildSingleOperator(std::map<MapType, std::string> things) {
     return output;
 }
 
-std::string buildOperatorPattern() {
-    std::string operatorPattern = "(";
+template <typename MapType>
+std::string buildPattern(const std::vector<std::map<MapType, std::string>>& maps) {
+    std::string pattern("(");
 
-    operatorPattern += buildSingleOperator(operators::assignments);
-    operatorPattern += buildSingleOperator(operators::arithmetics);
-    operatorPattern += buildSingleOperator(separators::separators);
+    for (const auto& map : maps)
+        pattern += buildSingleOperator(map);
 
-    operatorPattern += ")";
-
-    return operatorPattern;
+    return (pattern += ")");
 }
 
 // type as TokenType, regex pattern as std::string, type as std::string
 const std::map<TokenType, std::tuple<std::string, std::string>> patterns({
         {TokenType::Keyword, std::make_pair("int|float|char|while|if|return", "Keyword")},
         {TokenType::Identifier, std::make_pair("[a-zA-Z_][a-zA-Z0-9_]*", "Identifier")},
-        {TokenType::Operator, std::make_pair(buildOperatorPattern(), "Operator")}, // "=|\\{|\\}|\\(|\\)|;|\\+\\+|--"
+        {TokenType::Operator, std::make_pair("(" + buildSingleOperator(operators::arithmetics) + buildSingleOperator(operators::assignments) + ")", "Operator")}, // "=|\\{|\\}|\\(|\\)|;|\\+\\+|--"
+        {TokenType::Separator, std::make_pair("(" + buildSingleOperator(separators::separators) + ")", "Separator")},
         {TokenType::Number, std::make_pair("\\d+", "Number")}
 });
