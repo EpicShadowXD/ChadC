@@ -6,7 +6,7 @@ int main() {
 //    std::string input(scanner("input.txt"));
     std::string input =  "int main() {\n"
                          "    int a = 2 + 3;\n"
-                         "    a += 3 * 4 + 5;\n"
+                         "    a++;\n"
                          "    return a;\n"
                          "}";
 

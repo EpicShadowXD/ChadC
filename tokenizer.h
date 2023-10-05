@@ -13,7 +13,11 @@
 
 enum class TokenType {
     Keyword,
-    Operator,
+    Operator, /*
+    LParanthesis,
+    RParanthesis,
+    LBracket,
+    RBracket, */
     Separator,
     Identifier,
     Number,
@@ -58,6 +62,26 @@ namespace operators {
     };
 };
 
+namespace separators {
+    enum class Separators {
+        LParanthesis,
+        RParanthesis,
+        LBracket,
+        RBracket,
+        Comma,
+        Semicolon
+    };
+
+    const std::map<Separators, std::string> separators = {
+        {Separators::LParanthesis, "("},
+        {Separators::RParanthesis, ")"},
+        {Separators::LBracket, "{"},
+        {Separators::RBracket, "}"},
+        {Separators::Comma, ";"},
+        {Separators::Semicolon, ";"},
+    };
+}
+
 // TODO: shorten buildOperatorPattern and make the token type operator more specific
 template <typename MapType>
 std::string buildSingleOperator(MapType ops) {
@@ -91,8 +115,14 @@ std::string buildOperatorPattern() {
         operatorPattern += "\\" + std::get<1>(arithmetic);
     }
 
-    // Add other operators
-    operatorPattern += "|=|\\{|\\}|\\(|\\)|;|\\+\\+|--";
+    // Iterate over arithmetic operators
+    for (const auto& separator : separators::separators) {
+        if (!operatorPattern.empty()) {
+            operatorPattern += "|";
+        }
+        operatorPattern += "\\" + std::get<1>(separator);
+    }
+
     operatorPattern += ")";
 
     return operatorPattern;

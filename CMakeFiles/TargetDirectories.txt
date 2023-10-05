@@ -1,0 +1,3 @@
+/workspace/ChadC/CMakeFiles/chad_compiler.dir
+/workspace/ChadC/CMakeFiles/edit_cache.dir
+/workspace/ChadC/CMakeFiles/rebuild_cache.dir
