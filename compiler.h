@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <variant>
+#include <regex>
 
 enum class Type {
     keyword,
@@ -118,4 +119,12 @@ public:
 };
 
 // keyword, identifier, literal, operator, separator
-using Token = std::variant<Keyword, std::string, std::variant<int, float, char>, Operator, Separator>;
+//using Literal = std::variant<int, float, char>;
+//using Token = std::variant<Keyword, std::string, Literal, Operator, Separator>;
+
+struct Token {
+    using Literal = std::variant<int, float, char>;
+
+    Type type; // std::string down there is for identifier
+    std::variant<std::string, Literal, Operator, Separator> value;
+};
